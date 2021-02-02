@@ -1,0 +1,21 @@
+[package]
+authors = ['Gregory Hill']
+edition = '2018'
+name = 'secp256k1-wasm'
+version = '0.0.1'
+
+[build-dependencies]
+substrate-wasm-builder = "3.0.0"
+
+[dependencies]
+parity-secp256k1 = { package = "libsecp256k1", version = "0.3.5", default-features = false }
+bitcoin-core-secp256k1 = { package = "secp256k1", git = "https://github.com/rust-bitcoin/rust-secp256k1", rev = "8e61874", default-features = false }
+rust-crypto-secp256k1 = { package = "k256", version = "0.7.2", default-features = false, features = ["arithmetic", "pkcs8", "ecdh", "ecdsa"] }
+
+[features]
+default = ["std"]
+std = [
+  "parity-secp256k1/std",
+  "bitcoin-core-secp256k1/std",
+  "rust-crypto-secp256k1/std",
+]
