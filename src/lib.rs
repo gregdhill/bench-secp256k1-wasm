@@ -41,13 +41,12 @@ pub mod parity_libsecp256k1 {
 }
 
 pub mod bitcoin_core_libsecp256k1 {
-    use bitcoin_core_secp256k1::{ffi::types::AlignedType, Error, PublicKey, Secp256k1};
+    use bitcoin_core_secp256k1::{
+        ffi::types::AlignedType, AllPreallocated, Error, PublicKey, Secp256k1,
+    };
     use test::Bencher;
 
-    fn ecmul() -> Result<(), Error> {
-        let mut buf = vec![AlignedType::zeroed(); Secp256k1::preallocate_size()];
-        let secp = Secp256k1::preallocated_new(&mut buf)?;
-
+    fn ecmul(secp: &Secp256k1<AllPreallocated<'_>>) -> Result<(), Error> {
         let secret_key = &[
             137, 16, 46, 159, 212, 158, 232, 178, 197, 253, 105, 137, 102, 159, 70, 217, 110, 211,
             254, 82, 216, 4, 105, 171, 102, 252, 54, 190, 114, 91, 11, 69,
@@ -72,12 +71,16 @@ pub mod bitcoin_core_libsecp256k1 {
 
     #[test]
     fn test_libsecp256k1() {
-        ecmul().unwrap();
+        let mut buf = vec![AlignedType::zeroed(); Secp256k1::preallocate_size()];
+        let secp = Secp256k1::preallocated_new(&mut buf).unwrap();
+        ecmul(&secp).unwrap();
     }
 
     #[bench]
     fn bench_libsecp256k1(b: &mut Bencher) {
-        b.iter(|| ecmul().unwrap());
+        let mut buf = vec![AlignedType::zeroed(); Secp256k1::preallocate_size()];
+        let secp = Secp256k1::preallocated_new(&mut buf).unwrap();
+        b.iter(|| ecmul(&secp).unwrap());
     }
 }
 
